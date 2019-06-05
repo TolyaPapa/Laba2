@@ -122,12 +122,39 @@ def Solve():
     g.write('matrix R_new \n'+str(R_new)+'\n')
 
     U, S, Vt = np.linalg.svd(R_new)
-    # restored_matrix = np.dot(U, S, Vt)
 
-    # number=100
+    number=250
+    S_add = np.zeros((width, height))  # Create an empty matrix for singular numbers
+    for i in range(width):
+        for j in range(height):
+            if i == j:
+                S_add[i][j] = S[i]
+    for i in range(number, width):
+        for j in range(number, height):
+            S_add[i][j] = 0
+    US = np.dot(U, S_add)
+    restored_matrix = np.dot(US, Vt)
+    g.write("Restored matrix :\n{}\n".format(str(restored_matrix)))
+    for i in range(width):
+        for j in range(height):
+            a = int(restored_matrix[i][j])
+            b = pix[i, j][1]
+            c = pix[i, j][2]
+            draw.point((i, j), (a, b, c))
+
+    image.save("RestoredIm16.jpg", "JPEG")
+    del draw
+    total_error = 0
+    for i in range(width):
+        for j in range(height):
+            diff = abs(R_new[i][j] - restored_matrix[i][j])
+            total_error += diff
+    EPS = total_error / (width * height) * 100
+    g.write('The error of the original matrix and the result: {}%\n'.format(EPS))
+    #draw error count
     error_count=[]
-
-    for number in range(min(width,height)):
+    for number in range(min(width,height)+1):
+        print(number)
         S_add = np.zeros((width, height))  # Create an empty matrix for singular numbers
         for i in range(width):
             for j in range(height):
@@ -138,18 +165,6 @@ def Solve():
                 S_add[i][j] = 0
         US = np.dot(U, S_add)
         restored_matrix = np.dot(US, Vt)  # dot of 2 array
-        g.write("Restored matrix :\n{}\n".format(str(restored_matrix)))
-        if number==250:          #how many components we take
-            #Restore the image
-            for i in range(width):
-                for j in range(height):
-                    a = int(restored_matrix[i][j])
-                    b = pix[i, j][1]
-                    c = pix[i, j][2]
-                    draw.point((i, j), (a, b, c))
-
-            image.save("RestoredIm16.jpg", "JPEG")
-            del draw
 
         total_error = 0
         for i in range(width):
@@ -157,10 +172,9 @@ def Solve():
                 diff = abs(R_new[i][j] - restored_matrix[i][j])
                 total_error += diff
         EPS = total_error / (width * height) * 100
-        g.write('The error of the original matrix and the result: {}%\n'.format(EPS))
         error_count.append(EPS)
-    x_number_list=list(range(0,min(width,height)))
-    plt.plot(x_number_list,error_count,linewidth=2, grid=True)
+    x_number_list=list(range(0,min(width,height)+1))
+    plt.plot(x_number_list,error_count,linewidth=2)
     plt.title('Error count depend on quantity of components ')
     plt.xlabel('Components')
     plt.ylabel('Error, %')
