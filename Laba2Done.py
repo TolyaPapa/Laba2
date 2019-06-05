@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import glob
 import fitter
 import pickle
+from  math import log1p
 
 COLOR = {'Red': 0,
          'Green': 1,
@@ -35,7 +36,7 @@ Kurt_Vector_B = []
 
 def Solve():
     g = open('OutPut2.txt', "w")
-    pp = PdfPages("AllHistogram.pdf")
+    pp = PdfPages("Graph.pdf")
     np.seterr(divide='ignore', invalid='ignore')
     if not sys.warnoptions:
         import warnings
@@ -171,7 +172,7 @@ def Solve():
                 diff = abs(R_new[i][j] - restored_matrix[i][j])
                 total_error += diff
         EPS = total_error / (width * height) * 100
-        error_count.append(EPS)
+        error_count.append(log1p(EPS))
     x_number_list=list(range(0,min(width,height)+1))
     plt.plot(x_number_list,error_count,linewidth=2)
     plt.title('Error count depend on quantity of components ')
@@ -222,6 +223,18 @@ def Solve():
     g.write('Sum of elements divided by the number of lines = {}\n'.format(sum1 / 256))
     Stochastic_matrix=np.linalg.matrix_power(Stochastic_matrix,5)
     g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
+    Rec = True
+    for i in range(256):
+        if Stochastic_matrix[i][i] <= 0:
+            Rec = False
+            break
+    if Rec == True:
+        g.write('Matrix transition is Recurrent')
+    else:
+        g.write('Matrix trasition is Not recurrent')
+    flat = Stochastic_matrix.flatten()
+    flat.sort()
+    g.write('Minimum value of Stochastic matrix is {}\n'.format(flat[0]))
 
     # Stochastic matrix from the right to left
     Stochastic_matrix = np.zeros((256, 256))
@@ -237,7 +250,18 @@ def Solve():
 
     Stochastic_matrix = np.linalg.matrix_power(Stochastic_matrix, 5)
     g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
-
+    Rec = True
+    for i in range(256):
+        if Stochastic_matrix[i][i] <= 0:
+            Rec = False
+            break
+    if Rec == True:
+        g.write('Matrix transition is Recurrent')
+    else:
+        g.write('Matrix trasition is Not recurrent')
+    flat = Stochastic_matrix.flatten()
+    flat.sort()
+    g.write('Minimum value of Stochastic matrix is {}\n'.format(flat[0]))
     g.close()
 
 Solve()
