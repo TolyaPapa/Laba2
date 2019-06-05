@@ -154,7 +154,6 @@ def Solve():
     #draw error count
     error_count=[]
     for number in range(min(width,height)+1):
-        print(number)
         S_add = np.zeros((width, height))  # Create an empty matrix for singular numbers
         for i in range(width):
             for j in range(height):
@@ -216,14 +215,13 @@ def Solve():
     transform_matrix_LR(R_new)
 
     g.write(str(Stochastic_matrix)+'\n')
-    Stochastic_matrix=np.linalg.matrix_power(Stochastic_matrix,5)
-    g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
-
     # Sum of items divided by the number of items
     for i in range(256):
         for j in range(256):
             sum1 += Stochastic_matrix[i][j]
-    g.write('Sum of elements divided by the number of lines = {}\n'.format(sum1/256))
+    g.write('Sum of elements divided by the number of lines = {}\n'.format(sum1 / 256))
+    Stochastic_matrix=np.linalg.matrix_power(Stochastic_matrix,5)
+    g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
 
     # Stochastic matrix from the right to left
     Stochastic_matrix = np.zeros((256, 256))
@@ -236,6 +234,9 @@ def Solve():
         for j in range(256):
             sum1 += Stochastic_matrix[i][j]
     g.write('Sum of elements divided by the number of lines = {}\n'.format(sum1 / 256))
+
+    Stochastic_matrix = np.linalg.matrix_power(Stochastic_matrix, 5)
+    g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
 
     g.close()
 
