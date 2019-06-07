@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import glob
 import fitter
 import pickle
-from  math import log1p
+from  math import log1p,log10
 
 COLOR = {'Red': 0,
          'Green': 1,
@@ -172,13 +172,14 @@ def Solve():
                 diff = abs(R_new[i][j] - restored_matrix[i][j])
                 total_error += diff
         EPS = total_error / (width * height) * 100
-        error_count.append(log1p(EPS))
+        error_count.append(log10(EPS))
     x_number_list=list(range(0,min(width,height)+1))
     plt.plot(x_number_list,error_count,linewidth=2)
-    plt.title('Error count depend on quantity of components ')
+    plt.title('Error count depend on quantity of components\n(after natural logarithm taken) ')
     plt.xlabel('Components')
     plt.ylabel('Error, %')
-    plt.grid()
+    plt.yscale('log')
+    plt.grid(which='both')
     pp.savefig()
     pp.close()
 
@@ -223,18 +224,29 @@ def Solve():
     g.write('Sum of elements divided by the number of lines = {}\n'.format(sum1 / 256))
     Stochastic_matrix=np.linalg.matrix_power(Stochastic_matrix,5)
     g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
-    Rec = True
+    Regu = True
+    Reku = True
     for i in range(256):
         if Stochastic_matrix[i][i] <= 0:
-            Rec = False
+            Regu = False
             break
-    if Rec == True:
-        g.write('Matrix transition is Recurrent')
+        if Stochastic_matrix[i][i] != 1:
+            Reku = False
+    if Regu == True:
+        g.write('Matrix transition is Regular\n')
     else:
-        g.write('Matrix trasition is Not recurrent')
+        g.write('Matrix trasition is Not regular\n')
+    if Reku == True:
+        g.write('Matrix transition is Recurrent\n')
+    else:
+        g.write('Matrix trasition is not Recurrent\n')
     flat = Stochastic_matrix.flatten()
     flat.sort()
     g.write('Minimum value of Stochastic matrix is {}\n'.format(flat[0]))
+    if flat[0] > 0:
+        g.write('Matrix transition is Irreducible\n')
+    else:
+        g.write('Matrix transition is not Irreducible\n')
 
     # Stochastic matrix from the right to left
     Stochastic_matrix = np.zeros((256, 256))
@@ -250,18 +262,29 @@ def Solve():
 
     Stochastic_matrix = np.linalg.matrix_power(Stochastic_matrix, 5)
     g.write('Stochastic matrix after 5 intergration:\n{}\n'.format(str(Stochastic_matrix)))
-    Rec = True
+    Regu = True
+    Reku = True
     for i in range(256):
         if Stochastic_matrix[i][i] <= 0:
-            Rec = False
+            Regu = False
             break
-    if Rec == True:
-        g.write('Matrix transition is Recurrent')
+        if Stochastic_matrix[i][i]!=1:
+            Reku = False
+    if Regu == True:
+        g.write('Matrix transition is Regular\n')
     else:
-        g.write('Matrix trasition is Not recurrent')
+        g.write('Matrix trasition is Not regular\n')
+    if Reku  == True:
+        g.write('Matrix transition is Recurrent\n')
+    else:
+        g.write('Matrix trasition is not Recurrent\n')
     flat = Stochastic_matrix.flatten()
     flat.sort()
     g.write('Minimum value of Stochastic matrix is {}\n'.format(flat[0]))
+    if flat[0]>0:
+        g.write('Matrix transition is Irreducible\n')
+    else:
+        g.write('Matrix transition is not Irreducible\n')
     g.close()
 
 Solve()
